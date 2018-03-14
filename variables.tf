@@ -1,3 +1,7 @@
+# Defined when calling terraform apply -var 'access_key=foo' -var 'secret_key=bar'
+variable "access_key" {}
+variable "secret_key" {}
+
 variable "region" {
   description = "Region that the instances will be created"
 }

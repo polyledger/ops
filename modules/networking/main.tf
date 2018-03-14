@@ -2,6 +2,7 @@
 The VPC
 ======*/
 
+# Create a VPC to launch our instances into
 resource "aws_vpc" "vpc" {
   cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = true
@@ -26,7 +27,6 @@ resource "aws_internet_gateway" "ig" {
   }
 }
 
-
 /* Elastic IP for NAT */
 resource "aws_eip" "nat_eip" {
   vpc        = true
@@ -46,6 +46,7 @@ resource "aws_nat_gateway" "nat" {
 }
 
 /* Public subnet */
+# Create a subnet to launch our instances into
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = "${aws_vpc.vpc.id}"
   count                   = "${length(var.public_subnets_cidr)}"
@@ -93,6 +94,7 @@ resource "aws_route_table" "public" {
   }
 }
 
+# Grant the VPC internet access on its main route table
 resource "aws_route" "public_internet_gateway" {
   route_table_id         = "${aws_route_table.public.id}"
   destination_cidr_block = "0.0.0.0/0"
@@ -120,6 +122,7 @@ resource "aws_route_table_association" "private" {
 
 /*====
 VPC's Default Security Group
+# A security group for the ELB so it is accessible via the web
 ======*/
 resource "aws_security_group" "default" {
   name        = "${var.environment}-default-sg"
@@ -127,6 +130,7 @@ resource "aws_security_group" "default" {
   vpc_id      = "${aws_vpc.vpc.id}"
   depends_on  = ["aws_vpc.vpc"]
 
+  # All access - maybe we want to restrict that to web/ssh?
   ingress {
     from_port = "0"
     to_port   = "0"
@@ -134,6 +138,7 @@ resource "aws_security_group" "default" {
     self      = true
   }
 
+  # outbound internet access
   egress {
     from_port = "0"
     to_port   = "0"

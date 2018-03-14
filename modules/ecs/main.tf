@@ -19,6 +19,7 @@ resource "aws_ecr_repository" "openjobs_app" {
 
 /*====
 ECS cluster
+# Even using Fargate (that doesn’t need any EC2), we need to define a cluster for the application.
 ======*/
 resource "aws_ecs_cluster" "cluster" {
   name = "${var.environment}-ecs-cluster"
@@ -52,7 +53,7 @@ resource "aws_ecs_task_definition" "web" {
 }
 
 /* the task definition for the db migration */
-data "template_file" "db_migrate_task" {
+/*data "template_file" "db_migrate_task" {
   template = "${file("${path.module}/tasks/db_migrate_task_definition.json")}"
 
   vars {
@@ -61,9 +62,9 @@ data "template_file" "db_migrate_task" {
     database_url    = "postgresql://${var.database_username}:${var.database_password}@${var.database_endpoint}:5432/${var.database_name}?encoding=utf8&pool=40"
     log_group       = "openjobs"
   }
-}
+}*/
 
-resource "aws_ecs_task_definition" "db_migrate" {
+/*resource "aws_ecs_task_definition" "db_migrate" {
   family                   = "${var.environment}_db_migrate"
   container_definitions    = "${data.template_file.db_migrate_task.rendered}"
   requires_compatibilities = ["FARGATE"]
@@ -72,7 +73,7 @@ resource "aws_ecs_task_definition" "db_migrate" {
   memory                   = "512"
   execution_role_arn       = "${aws_iam_role.ecs_execution_role.arn}"
   task_role_arn            = "${aws_iam_role.ecs_execution_role.arn}"
-}
+}*/
 
 /*====
 App Load Balancer
@@ -232,6 +233,7 @@ resource "aws_security_group" "ecs_service" {
 
 /* Simply specify the family to find the latest ACTIVE revision in that family */
 data "aws_ecs_task_definition" "web" {
+  depends_on = [ "aws_ecs_task_definition.web" ]
   task_definition = "${aws_ecs_task_definition.web.family}"
 }
 
