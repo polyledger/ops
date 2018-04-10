@@ -25,6 +25,7 @@ in `terraform.tfvars`.
 
 - [ ] Enable code build/pipeline
 - [ ] Rails -> Django
+- [ ] Add ElastiCache Redis
 - [ ] Use Aurora Postgres
 - [ ] Writer better README
 - [ ] DB backups
