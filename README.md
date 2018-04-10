@@ -13,6 +13,7 @@ TODO
 * The AWS region, main domain name, database credentials and the app secret are located
 in `terraform.tfvars`.
 * RDS instance size in `production.tf`
+* Main container port and ENV variables in `modules/ecs/tasks/web_task_definition.json`
 
 ## Getting started
 
