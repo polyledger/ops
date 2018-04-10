@@ -8,17 +8,24 @@ This Terraform script is based on [this blog post](https://thecode.pub/easy-depl
 
 TODO
 
+## Settings
+
+* The AWS region, main domain name, database credentials and the app secret are located
+in `terraform.tfvars`.
+* RDS instance size in `production.tf`
+
 ## Getting started
 
 * `brew install terraform`
 * `terraform init`
 * `terraform apply -var 'access_key=foo' -var 'secret_key=bar'`
+* `terraform destroy -var 'access_key=foo' -var 'secret_key=bar'`
 
 ## TODO
 
-- [ ] Update AWS region
 - [ ] Enable code build/pipeline
 - [ ] Rails -> Django
 - [ ] Use Aurora Postgres
 - [ ] Writer better README
+- [ ] DB backups
 - [ ] Add doc for different environments (different AWS accounts?)
