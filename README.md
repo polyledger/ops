@@ -14,6 +14,7 @@ TODO
 in `terraform.tfvars`.
 * RDS instance size in `production.tf`
 * Main container port and ENV variables in `modules/ecs/tasks/web_task_definition.json`
+* Main container Github source in `modules/code_pipeline/main.tf`
 
 ## Getting started
 
