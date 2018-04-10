@@ -10,6 +10,7 @@ TODO
 
 ## Settings
 
+* Public SSH key/pair, edit `production_key.pub`
 * The AWS region, main domain name, database credentials and the app secret are located
 in `terraform.tfvars`.
 * RDS instance size in `production.tf`
