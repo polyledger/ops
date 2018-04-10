@@ -54,9 +54,9 @@ data "template_file" "buildspec" {
     repository_url     = "${var.repository_url}"
     region             = "${var.region}"
     # Not needed now but needed to run the migrate task
-    #cluster_name       = "${var.ecs_cluster_name}"
-    #subnet_id          = "${var.run_task_subnet_id}"
-    #security_group_ids = "${join(",", var.run_task_security_group_ids)}"
+    cluster_name       = "${var.ecs_cluster_name}"
+    subnet_id          = "${var.run_task_subnet_id}"
+    security_group_ids = "${join(",", var.run_task_security_group_ids)}"
   }
 }
 
