@@ -27,10 +27,10 @@ in `terraform.tfvars`.
 
 ## TODO
 
-- [ ] Enable code build/pipeline
-- [ ] Rails -> Django
+- [x] Enable code build/pipeline
+- [x] Rails -> Django
 - [ ] Add ElastiCache Redis
 - [ ] Use Aurora Postgres
 - [ ] Writer better README
-- [ ] DB backups
+- [ ] DB backups?
 - [ ] Add doc for different environments (different AWS accounts?)
