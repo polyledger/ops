@@ -26,6 +26,10 @@ variable "public_subnet_ids" {
   description = "The private subnets to use"
 }
 
+variable "redis_endpoint" {
+  description = "The Redis endpoint"
+}
+
 variable "database_endpoint" {
   description = "The database endpoint"
 }

@@ -13,7 +13,7 @@ TODO
 * Public SSH key/pair, edit `production_key.pub`
 * The AWS region, main domain name, database credentials and the app secret are located
 in `terraform.tfvars`.
-* RDS instance size in `production.tf`
+* RDS/Elasticache instance size (and other vars) in `production.tf`
 * Main container port and ENV variables in `modules/ecs/tasks/web_task_definition.json`
 * Main container Github source in `modules/code_pipeline/main.tf`
 * CPU/RAM: TODO
@@ -29,8 +29,16 @@ in `terraform.tfvars`.
 
 - [x] Enable code build/pipeline
 - [x] Rails -> Django
-- [ ] Add ElastiCache Redis
+- [x] Add ElastiCache Redis
+- [x] Add public EC2 server that can connect to the DB and Redis
+- [x] Update django sample app to connect from DATABASE_URL and REDIS_URL
+- [ ] Add public IP for ssh (rename -> Bastion)
+- [ ] Setup domain name
+- [ ] IAM users
 - [ ] Use Aurora Postgres
+- [ ] Add VPN to protect the EC2 instance
+- [ ] Add CI
+- [ ] DB migrations? Maybe we need a console
+- [ ] Add staging (+ prod)
 - [ ] Writer better README
 - [ ] DB backups?
-- [ ] Add doc for different environments (different AWS accounts?)

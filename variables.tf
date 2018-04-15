@@ -22,6 +22,14 @@ variable "production_database_password" {
   description = "The user password for the Production database"
 }
 
+variable "production_ec_cluster_id" {
+  description = "The name of the Redis cluster"
+}
+
+variable "production_ec_node_groups" {
+  description = "Number of Redis replicas"
+}
+
 variable "production_secret_key_base" {
   description = "The app secret key for production"
 }
