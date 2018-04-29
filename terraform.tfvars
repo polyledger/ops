@@ -1,5 +1,5 @@
 region                        = "us-east-1"
-domain                        = "ecsfargateexample.tk"
+domain                        = "polyledger-staging.com"
 
 /* rds */
 production_database_name      = "polyledger_production"

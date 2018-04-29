@@ -33,12 +33,12 @@ in `terraform.tfvars`.
 - [x] Add public EC2 server that can connect to the DB and Redis
 - [x] Update django sample app to connect from DATABASE_URL and REDIS_URL
 - [ ] Add public IP for ssh (rename -> Bastion)
-- [ ] Setup domain name
+- [x] Setup domain name
 - [ ] IAM users
 - [ ] Use Aurora Postgres
 - [ ] Add VPN to protect the EC2 instance
 - [ ] Add CI
 - [ ] DB migrations? Maybe we need a console
-- [ ] Add staging (+ prod)
+- [ ] Add staging (+ prod) parity
 - [ ] Writer better README
 - [ ] DB backups?
