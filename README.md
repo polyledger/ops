@@ -2,7 +2,9 @@
 
 ## Intro
 
-This Terraform script is based on [this blog post](https://thecode.pub/easy-deploy-your-docker-applications-to-aws-using-ecs-and-fargate-a988a1cc842f), modified to work with a Django app (WIP).
+This Terraform script is based on [this blog post](https://thecode.pub/easy-deploy-your-docker-applications-to-aws-using-ecs-and-fargate-a988a1cc842f), modified to work with a Django app.
+
+Another interesting resource: https://github.com/hashicorp/best-practices/tree/master/terraform/providers/aws.
 
 ## Infra overview
 
