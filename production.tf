@@ -72,8 +72,8 @@ module "ecs" {
   secret_key_base     = "${var.production_secret_key_base}"
 }
 
-module "ssh" {
-  source      = "./modules/ssh"
+module "bastion" {
+  source      = "./modules/bastion"
   environment = "production"
   vpc_id      = "${module.networking.vpc_id}"
   subnet_id   = "${module.networking.public_subnets_id[0]}"

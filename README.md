@@ -27,20 +27,25 @@ in `terraform.tfvars`.
 * `terraform apply -var 'access_key=foo' -var 'secret_key=bar'`
 * `terraform destroy -var 'access_key=foo' -var 'secret_key=bar'`
 
-## TODO
+## Short term TODO
 
 - [x] Enable code build/pipeline
 - [x] Rails -> Django
 - [x] Add ElastiCache Redis
 - [x] Add public EC2 server that can connect to the DB and Redis
 - [x] Update django sample app to connect from DATABASE_URL and REDIS_URL
-- [ ] Add public IP for ssh (rename -> Bastion)
+- [x] Add Elastic IP for ssh (rename -> Bastion)
 - [x] Setup domain name
-- [ ] IAM users
-- [ ] Use Aurora Postgres
-- [ ] Add VPN to protect the EC2 instance
-- [ ] Add CI
-- [ ] DB migrations? Maybe we need a console
+- [ ] Add monitoring
 - [ ] Add staging (+ prod) parity
 - [ ] Writer better README
-- [ ] DB backups?
+- [ ] Settings for instance types/container sizes
+
+## Long term TODO
+
+- [ ] Add CI
+- [ ] IAM users
+- [ ] Use Aurora Postgres
+- [ ] DB backups? (should be included with Aurora)
+- [ ] Add VPN to protect the EC2 instance
+- [ ] DB migrations? Maybe we need a console

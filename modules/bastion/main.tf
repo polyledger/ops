@@ -9,12 +9,12 @@ variable "key_name" {}
 variable "vpc_security_group_ids" { type = "list" }
 
 resource "aws_security_group" "ssh_sg" {
-  name        = "${var.environment}-ssh-sg"
+  name        = "${var.environment}-bastion-sg"
   vpc_id      = "${var.vpc_id}"
   description = "Bastion security group"
 
   tags {
-    Name = "${var.environment}-ssh-sg"
+    Name = "${var.environment}-bastion-sg"
     Environment = "${var.environment}"
   }
 
@@ -63,7 +63,7 @@ data "template_file" "startup" {
   template = "${file("${path.module}/startup.sh.tpl")}"
 }
 
-resource "aws_instance" "ssh_host" {
+resource "aws_instance" "bastion" {
   ami           = "${data.aws_ami.ubuntu-1604.id}"
   instance_type = "t2.nano"
   key_name      = "${var.key_name}"
@@ -73,10 +73,20 @@ resource "aws_instance" "ssh_host" {
   user_data              = "${data.template_file.startup.rendered}"
 
   tags {
-    Name        = "${var.environment}-ssh-host"
+    Name        = "${var.environment}-bastion-host"
     Environment = "${var.environment}"
   }
 }
 
-output "ssh_user" { value = "ubuntu" }
-output "ssh_host" { value = "${aws_instance.ssh_host.public_ip}" }
+resource "aws_eip" "bastion_eip" {
+  vpc = true
+  instance = "${aws_instance.bastion.id}"
+
+  lifecycle {
+    # We don't want it to be removed from the account so it does not change
+    prevent_destroy = true
+  }
+}
+
+output "user" { value = "ubuntu" }
+output "public_ip" { value = "${aws_instance.bastion.public_ip}" }
