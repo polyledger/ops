@@ -48,4 +48,5 @@ in `terraform.tfvars`.
 - [ ] Use Aurora Postgres
 - [ ] DB backups? (should be included with Aurora)
 - [ ] Add VPN to protect the EC2 instance
+- [ ] Add Vault + Consul
 - [ ] DB migrations? Maybe we need a console
