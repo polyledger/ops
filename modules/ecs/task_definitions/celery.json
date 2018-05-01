@@ -1,0 +1,15 @@
+[
+  {
+    "name": "celery",
+    "image": "${image}",
+    "memory": 300,
+    "networkMode": "awsvpc",
+    "volumesFrom": [],
+    "links": [],
+    "mountPoints": [],
+    "essential": true,
+    "command": ["celery", "--app", "polyledger", "worker", "--loglevel=INFO", "-u", "matt"],
+    "environment": [
+    ]
+  }
+]
