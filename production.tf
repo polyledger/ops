@@ -46,7 +46,7 @@ module "elasticache" {
   # https://aws.amazon.com/elasticache/pricing/
   instance_class    = "cache.t2.micro"
   node_groups       = "${var.production_ec_node_groups}"
-  cluster_id        = "${var.production_ec_cluster_id}"
+  cluster_id        = "${var.environment}-redis"
   subnet_ids        = ["${module.networking.private_subnets_id}"]
   vpc_id            = "${module.networking.vpc_id}"
 }
