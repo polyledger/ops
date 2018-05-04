@@ -53,3 +53,10 @@ variable "repository_name" {
 variable "secret_key_base" {
   description = "The secret key base to use in the app"
 }
+
+variable "email_host_password" {}
+variable "npm_token" {}
+variable "bitbutter_api_key" {}
+variable "bitbutter_api_secret" {}
+variable "bitbutter_partnership_id" {}
+variable "bitbutter_partner_id" {}

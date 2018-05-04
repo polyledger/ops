@@ -33,3 +33,10 @@ variable "production_secret_key_base" {
 variable "domain" {
   default = "The domain of your application"
 }
+
+variable "production_email_host_password" {}
+variable "production_npm_token" {}
+variable "production_bitbutter_api_key" {}
+variable "production_bitbutter_api_secret" {}
+variable "production_bitbutter_partnership_id" {}
+variable "production_bitbutter_partner_id" {}

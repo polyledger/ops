@@ -64,12 +64,18 @@ module "ecs" {
     "${module.rds.db_access_sg_id}",
     "${module.elasticache.elasticache_access_sg_id}"
   ]
-  database_endpoint   = "${module.rds.rds_address}"
-  database_name       = "${var.production_database_name}"
-  database_username   = "${var.production_database_username}"
-  database_password   = "${var.production_database_password}"
-  redis_endpoint      = "${module.elasticache.elasticache_endpoint}"
-  secret_key_base     = "${var.production_secret_key_base}"
+  database_endpoint        = "${module.rds.rds_address}"
+  database_name            = "${var.production_database_name}"
+  database_username        = "${var.production_database_username}"
+  database_password        = "${var.production_database_password}"
+  redis_endpoint           = "${module.elasticache.elasticache_endpoint}"
+  secret_key_base          = "${var.production_secret_key_base}"
+  email_host_password      = "${var.production_email_host_password}"
+  npm_token                = "${var.production_npm_token}"
+  bitbutter_api_key        = "${var.production_bitbutter_api_key}"
+  bitbutter_api_secret     = "${var.production_bitbutter_api_secret}"
+  bitbutter_partnership_id = "${var.production_bitbutter_partnership_id}"
+  bitbutter_partner_id     = "${var.production_bitbutter_partner_id}"
 }
 
 module "bastion" {
