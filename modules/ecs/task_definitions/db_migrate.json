@@ -2,7 +2,7 @@
   {
     "name": "db-migrate",
     "image": "${image}",
-    "command": ["bundle", "exec", "rake", "db:migrate"],
+    "command": ["bash", "-c", "'python manage.py migrate'"],
     "memory": 300,
     "logConfiguration": {
       "logDriver": "awslogs",
@@ -14,20 +14,16 @@
     },
     "environment": [
       {
-        "name": "RAILS_ENV",
-        "value": "production"
-      },
-      {
         "name": "DATABASE_URL",
         "value": "${database_url}"
       },
       {
-        "name": "SECRET_KEY_BASE",
+        "name": "SECRET_KEY",
         "value": "${secret_key_base}"
       },
       {
-        "name": "RAILS_LOG_TO_STDOUT",
-        "value": "true"
+        "name": "DJANGO_SETTINGS_MODULE",
+        "value": "polyledger.settings.production"
       }
     ]
   }
