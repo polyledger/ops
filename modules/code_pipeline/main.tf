@@ -108,7 +108,7 @@ resource "aws_codepipeline" "pipeline" {
 
       configuration {
         Owner      = "polyledger"
-        Repo       = "django_sample_app"
+        Repo       = "polyledger"
         Branch     = "master"
       }
     }

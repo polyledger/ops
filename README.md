@@ -21,7 +21,7 @@ definition JSON file. For more information see: [Using the awslogs Log Driver](h
 * The AWS region, main domain name, database credentials and the app secret are located
 in `terraform.tfvars`.
 * RDS/Elasticache instance size (and other vars) in `production.tf`
-* Main container port and ENV variables in `modules/ecs/tasks/web_task_definition.json`
+* Main container port and ENV variables in `modules/ecs/tasks/web.json`
 * Main container Github source in `modules/code_pipeline/main.tf`
 * CPU/RAM: TODO
 
