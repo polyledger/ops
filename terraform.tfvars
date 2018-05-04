@@ -7,7 +7,6 @@ production_database_username  = "app"
 production_database_password  = "myawesomepasswordproduction"
 
 /* elasticache */
-production_ec_cluster_id = "production-redis"
 production_ec_node_groups = 3
 
 /* secret key */

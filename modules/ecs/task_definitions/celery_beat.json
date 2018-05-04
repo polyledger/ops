@@ -16,7 +16,7 @@
     "links": [],
     "mountPoints": [],
     "essential": true,
-    "command": ["celery", "--app", "polyledger", "worker", "--loglevel=INFO", "-u", "matt"],
+    "command": ["celery", "--app", "polyledger", "beat", "--loglevel=INFO", "-s", "celerybeat-schedule.db"],
     "environment": [
     ]
   }

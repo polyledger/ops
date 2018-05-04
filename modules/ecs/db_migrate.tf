@@ -4,7 +4,7 @@ ECS task definitions
 
 /* the task definition for the db migration */
 /*data "template_file" "db_migrate_task" {
-  template = "${file("${path.module}/tasks/db_migrate_task_definition.json")}"
+  template = "${file("${path.module}/tasks/db_migrate.json")}"
 
   vars {
     image           = "${aws_ecr_repository.polyledger_app.repository_url}"

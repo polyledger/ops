@@ -2,8 +2,8 @@
 ECS task definitions
 ======*/
 
-resource "template_file" "celery_task" {
-  template = "${file("${path.module}/task_definitions/celery.json")}"
+resource "template_file" "celery_beat_task" {
+  template = "${file("${path.module}/task_definitions/celery_beat.json")}"
 
   vars {
     image     = "${aws_ecr_repository.polyledger_app.repository_url}"
@@ -11,9 +11,9 @@ resource "template_file" "celery_task" {
   }
 }
 
-resource "aws_ecs_task_definition" "celery_task" {
-  family                   = "${var.environment}_celery"
-  container_definitions    = "${template_file.celery_task.rendered}"
+resource "aws_ecs_task_definition" "celery_beat_task" {
+  family                   = "${var.environment}_celery_beat"
+  container_definitions    = "${template_file.celery_beat_task.rendered}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -26,10 +26,10 @@ resource "aws_ecs_task_definition" "celery_task" {
 ECS service
 ======*/
 
-resource "aws_ecs_service" "celery_service" {
-  name            = "${var.environment}-celery"
+resource "aws_ecs_service" "celery_beat_service" {
+  name            = "${var.environment}-celery-beat"
   cluster         = "${aws_ecs_cluster.cluster.id}"
-  task_definition = "${aws_ecs_task_definition.celery_task.arn}"
+  task_definition = "${aws_ecs_task_definition.celery_beat_task.arn}"
   desired_count   = 1
   launch_type     = "FARGATE"
   depends_on      = ["aws_iam_role_policy.ecs_service_role_policy"]

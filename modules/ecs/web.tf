@@ -4,7 +4,7 @@ ECS task definitions
 
 /* the task definition for the web service */
 data "template_file" "web_task" {
-  template = "${file("${path.module}/task_definitions/web_task_definition.json")}"
+  template = "${file("${path.module}/task_definitions/web.json")}"
 
   vars {
     image           = "${aws_ecr_repository.polyledger_app.repository_url}"

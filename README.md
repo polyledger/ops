@@ -10,6 +10,11 @@ Another interesting resource: https://github.com/hashicorp/best-practices/tree/m
 
 TODO
 
+### Logs
+
+ECS tasks logs will be sent to the us-east-1 region. This is specified in each task
+definition JSON file. For more information see: [Using the awslogs Log Driver](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_awslogs.html).
+
 ## Settings
 
 * Public SSH key/pair, edit `production_key.pub`
@@ -46,6 +51,7 @@ in `terraform.tfvars`.
 - [ ] Add CI
 - [ ] IAM users
 - [ ] Use Aurora Postgres
+- [ ] Add ECS service discovery (instead of Consul) https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html
 - [ ] DB backups? (should be included with Aurora)
 - [ ] Add VPN to protect the EC2 instance
 - [ ] Add Vault + Consul
