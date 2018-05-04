@@ -3,8 +3,8 @@ ECS task definitions
 ======*/
 
 /* the task definition for the web service */
-data "template_file" "web_task" {
-  template = "${file("${path.module}/task_definitions/web.json")}"
+data "template_file" "server_task" {
+  template = "${file("${path.module}/task_definitions/server.json")}"
 
   vars {
     image                    = "${aws_ecr_repository.polyledger_app.repository_url}"
@@ -21,9 +21,9 @@ data "template_file" "web_task" {
   }
 }
 
-resource "aws_ecs_task_definition" "web" {
-  family                   = "${var.environment}_web"
-  container_definitions    = "${data.template_file.web_task.rendered}"
+resource "aws_ecs_task_definition" "server" {
+  family                   = "${var.environment}_server"
+  container_definitions    = "${data.template_file.server_task.rendered}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -33,19 +33,19 @@ resource "aws_ecs_task_definition" "web" {
 }
 
 /* Simply specify the family to find the latest ACTIVE revision in that family */
-data "aws_ecs_task_definition" "web" {
-  depends_on = [ "aws_ecs_task_definition.web" ]
-  task_definition = "${aws_ecs_task_definition.web.family}"
+data "aws_ecs_task_definition" "server" {
+  depends_on = [ "aws_ecs_task_definition.server" ]
+  task_definition = "${aws_ecs_task_definition.server.family}"
 }
 
 /*====
 ECS service
 ======*/
 
-resource "aws_ecs_service" "web" {
-  name            = "${var.environment}-web"
-  task_definition = "${aws_ecs_task_definition.web.family}:${max("${aws_ecs_task_definition.web.revision}", "${data.aws_ecs_task_definition.web.revision}")}"
-  desired_count   = 2
+resource "aws_ecs_service" "server" {
+  name            = "${var.environment}-server"
+  task_definition = "${aws_ecs_task_definition.server.family}:${max("${aws_ecs_task_definition.server.revision}", "${data.aws_ecs_task_definition.server.revision}")}"
+  desired_count   = 1
   launch_type     = "FARGATE"
   cluster =       "${aws_ecs_cluster.cluster.id}"
   depends_on      = ["aws_iam_role_policy.ecs_service_role_policy"]
@@ -54,12 +54,4 @@ resource "aws_ecs_service" "web" {
     security_groups = ["${var.security_groups_ids}", "${aws_security_group.ecs_service.id}"]
     subnets         = ["${var.subnets_ids}"]
   }
-
-  load_balancer {
-    target_group_arn = "${aws_alb_target_group.alb_target_group.arn}"
-    container_name   = "web"
-    container_port   = "80"
-  }
-
-  depends_on = ["aws_alb_target_group.alb_target_group"]
 }

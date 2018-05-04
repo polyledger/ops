@@ -56,3 +56,8 @@ in `terraform.tfvars`.
 - [ ] Add VPN to protect the EC2 instance
 - [ ] Add Vault + Consul
 - [ ] DB migrations? Maybe we need a console
+
+## Questions
+
+- Do we need nginx?
+- ALB/ELB health check?
