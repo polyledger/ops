@@ -64,6 +64,8 @@ data "template_file" "buildspec" {
 
   vars {
     assets_bucket_name = "${aws_s3_bucket.assets.bucket}"
+    # We need it to run `npm build` in the builspec.yml
+    npm_token          = "${var.npm_token}"
     repository_url     = "${var.repository_url}"
     region             = "${var.region}"
     # Not needed now but needed to run the migrate task
