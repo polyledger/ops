@@ -22,3 +22,5 @@ variable "run_task_security_group_ids" {
   type        = "list"
   description = "The security group Ids attached where the single run task will be executed"
 }
+
+variable "npm_token" {}

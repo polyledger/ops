@@ -10,12 +10,13 @@ phases:
       - REPOSITORY_URI=${repository_url}
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - BUCKET_NAME=${assets_bucket_name}
+      - NPM_TOKEN=${npm_token}
       - echo Entered the pre_build phase...
   build:
     commands:
       - echo Build started on `date`
       - echo Running npm run build
-      - npm run build
+      - cd client && npm run build
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
