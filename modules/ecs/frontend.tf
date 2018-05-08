@@ -7,6 +7,7 @@ data "template_file" "frontend_task" {
 
   vars {
     image     = "${aws_ecr_repository.polyledger_app.repository_url}/client"
+    log_group = "${aws_cloudwatch_log_group.polyledger.name}"
     npm_token = "${var.npm_token}"
   }
 }
@@ -32,7 +33,7 @@ data "aws_ecs_task_definition" "frontend" {
 ECS service
 ======*/
 
-resource "aws_ecs_service" "server" {
+resource "aws_ecs_service" "frontend" {
   name            = "${var.environment}-frontend"
   task_definition = "${aws_ecs_task_definition.frontend.family}:${max("${aws_ecs_task_definition.frontend.revision}", "${data.aws_ecs_task_definition.frontend.revision}")}"
   desired_count   = 1

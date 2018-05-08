@@ -7,7 +7,7 @@ output "cluster_name" {
 }
 
 output "service_name" {
-  value = "${aws_ecs_service.web.name}"
+  value = "${aws_ecs_service.server.name}"
 }
 
 output "alb_dns_name" {
