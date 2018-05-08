@@ -12,7 +12,9 @@
       ],
       "Resource": [
         "${aws_s3_bucket_arn}",
-        "${aws_s3_bucket_arn}/*"
+        "${aws_s3_bucket_arn}/*",
+        "${aws_s3_bucket_assets_arn}",
+        "${aws_s3_bucket_assets_arn}/*"
       ]
     },
     {
