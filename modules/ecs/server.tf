@@ -9,8 +9,6 @@ data "template_file" "server_task" {
   vars {
     image                    = "${aws_ecr_repository.polyledger_app.repository_url}"
     secret_key_base          = "${var.secret_key_base}"
-    database_url             = "postgresql://${var.database_username}:${var.database_password}@${var.database_endpoint}:5432/${var.database_name}?encoding=utf8&pool=40"
-    redis_url                = "redis://${var.redis_endpoint}:6379/1"
     log_group                = "${aws_cloudwatch_log_group.polyledger.name}"
     email_host_password      = "${var.email_host_password}"
     npm_token                = "${var.npm_token}"

@@ -25,14 +25,6 @@
         "value": "80"
       },
       {
-        "name": "DATABASE_URL",
-        "value": "${database_url}"
-      },
-      {
-        "name": "REDIS_URL",
-        "value": "${redis_url}"
-      },
-      {
         "name": "SECRET_KEY",
         "value": "${secret_key_base}"
       },
