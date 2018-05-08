@@ -197,7 +197,7 @@ resource "aws_iam_role_policy" "ecs_autoscale_role_policy" {
 
 resource "aws_appautoscaling_target" "target" {
   service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id        = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   role_arn           = "${aws_iam_role.ecs_autoscale_role.arn}"
   min_capacity       = 2
@@ -207,7 +207,7 @@ resource "aws_appautoscaling_target" "target" {
 resource "aws_appautoscaling_policy" "up" {
   name                    = "${var.environment}_scale_up"
   service_namespace       = "ecs"
-  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension      = "ecs:service:DesiredCount"
 
 
@@ -228,7 +228,7 @@ resource "aws_appautoscaling_policy" "up" {
 resource "aws_appautoscaling_policy" "down" {
   name                    = "${var.environment}_scale_down"
   service_namespace       = "ecs"
-  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension      = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
@@ -247,7 +247,7 @@ resource "aws_appautoscaling_policy" "down" {
 
 /* metric used for auto scale */
 resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
-  alarm_name          = "${var.environment}_polyledger_web_cpu_utilization_high"
+  alarm_name          = "${var.environment}_polyledger_server_cpu_utilization_high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -258,7 +258,7 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
 
   dimensions {
     ClusterName = "${aws_ecs_cluster.cluster.name}"
-    ServiceName = "${aws_ecs_service.web.name}"
+    ServiceName = "${aws_ecs_service.server.name}"
   }
 
   alarm_actions = ["${aws_appautoscaling_policy.up.arn}"]
