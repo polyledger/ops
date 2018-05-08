@@ -1,5 +1,15 @@
+resource "aws_s3_bucket" "assets" {
+  bucket        = "polyledger-codepipeline-assets"
+  acl           = "public-read"
+  force_destroy = true
+
+  website {
+    index_document = "index.html"
+  }
+}
+
 resource "aws_s3_bucket" "source" {
-  bucket        = "polyledger-experiment-source"
+  bucket        = "polyledger-codepipeline-source"
   acl           = "private"
   force_destroy = true
 }
@@ -12,10 +22,11 @@ resource "aws_iam_role" "codepipeline_role" {
 
 /* policies */
 data "template_file" "codepipeline_policy" {
-  template = "${file("${path.module}/policies/codepipeline.json")}"
+  template = "${file("${path.module}/policies/codepipeline_policy.json")}"
 
   vars {
-    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+    aws_s3_bucket_arn        = "${aws_s3_bucket.source.arn}"
+    aws_s3_bucket_assets_arn = "${aws_s3_bucket.assets.arn}"
   }
 }
 
@@ -37,7 +48,8 @@ data "template_file" "codebuild_policy" {
   template = "${file("${path.module}/policies/codebuild_policy.json")}"
 
   vars {
-    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+    aws_s3_bucket_arn        = "${aws_s3_bucket.source.arn}"
+    aws_s3_bucket_assets_arn = "${aws_s3_bucket.assets.arn}"
   }
 }
 
@@ -51,6 +63,7 @@ data "template_file" "buildspec" {
   template = "${file("${path.module}/buildspec.yml")}"
 
   vars {
+    assets_bucket_name = "${aws_s3_bucket.assets.bucket}"
     repository_url     = "${var.repository_url}"
     region             = "${var.region}"
     # Not needed now but needed to run the migrate task
@@ -59,7 +72,6 @@ data "template_file" "buildspec" {
     security_group_ids = "${join(",", var.run_task_security_group_ids)}"
   }
 }
-
 
 resource "aws_codebuild_project" "polyledger_build" {
   name          = "polyledger-codebuild"
@@ -73,7 +85,7 @@ resource "aws_codebuild_project" "polyledger_build" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     // https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
-    image           = "aws/codebuild/docker:1.12.1"
+    image           = "aws/codebuild/nodejs:8.11.0"
     type            = "LINUX_CONTAINER"
     privileged_mode = true
   }
