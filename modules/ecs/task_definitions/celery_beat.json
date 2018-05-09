@@ -1,6 +1,6 @@
 [
   {
-    "name": "celery",
+    "name": "celery_beat",
     "image": "${image}",
     "memory": 300,
     "networkMode": "awsvpc",

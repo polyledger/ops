@@ -1,5 +1,5 @@
-resource "aws_s3_bucket" "assets" {
-  bucket        = "polyledger-codepipeline-assets"
+resource "aws_s3_bucket" "client_assets" {
+  bucket        = "polyledger-codepipeline-client-assets"
   acl           = "public-read"
   force_destroy = true
 
@@ -8,14 +8,14 @@ resource "aws_s3_bucket" "assets" {
   }
 }
 
-resource "aws_s3_bucket" "source" {
-  bucket        = "polyledger-codepipeline-source"
+resource "aws_s3_bucket" "source_artefacts" {
+  bucket        = "polyledger-codepipeline-source-artefacts"
   acl           = "private"
   force_destroy = true
 }
 
 resource "aws_iam_role" "codepipeline_role" {
-  name               = "codepipeline-role"
+  name = "codepipeline-role"
 
   assume_role_policy = "${file("${path.module}/policies/codepipeline_role.json")}"
 }
@@ -25,8 +25,8 @@ data "template_file" "codepipeline_policy" {
   template = "${file("${path.module}/policies/codepipeline_policy.json")}"
 
   vars {
-    aws_s3_bucket_arn        = "${aws_s3_bucket.source.arn}"
-    aws_s3_bucket_assets_arn = "${aws_s3_bucket.assets.arn}"
+    aws_s3_bucket_arn        = "${aws_s3_bucket.source_artefacts.arn}"
+    aws_s3_bucket_assets_arn = "${aws_s3_bucket.client_assets.arn}"
   }
 }
 
@@ -48,8 +48,8 @@ data "template_file" "codebuild_policy" {
   template = "${file("${path.module}/policies/codebuild_policy.json")}"
 
   vars {
-    aws_s3_bucket_arn        = "${aws_s3_bucket.source.arn}"
-    aws_s3_bucket_assets_arn = "${aws_s3_bucket.assets.arn}"
+    aws_s3_bucket_arn        = "${aws_s3_bucket.source_artefacts.arn}"
+    aws_s3_bucket_assets_arn = "${aws_s3_bucket.client_assets.arn}"
   }
 }
 
@@ -59,11 +59,11 @@ resource "aws_iam_role_policy" "codebuild_policy" {
   policy      = "${data.template_file.codebuild_policy.rendered}"
 }
 
-data "template_file" "buildspec" {
-  template = "${file("${path.module}/buildspec.yml")}"
+data "template_file" "buildspec_client" {
+  template = "${file("${path.module}/buildspec_client.yml")}"
 
   vars {
-    assets_bucket_name = "${aws_s3_bucket.assets.bucket}"
+    assets_bucket_name = "${aws_s3_bucket.client_assets.bucket}"
     # We need it to run `npm build` in the builspec.yml
     npm_token          = "${var.npm_token}"
     repository_url     = "${var.repository_url}"
@@ -75,9 +75,19 @@ data "template_file" "buildspec" {
   }
 }
 
-resource "aws_codebuild_project" "polyledger_build" {
-  name          = "polyledger-codebuild"
-  build_timeout = "10"
+data "template_file" "buildspec_server" {
+  template = "${file("${path.module}/buildspec_server.yml")}"
+
+  vars {
+    repository_url     = "${var.repository_url}"
+    region             = "${var.region}"
+  }
+}
+
+resource "aws_codebuild_project" "polyledger_build_client" {
+  name          = "polyledger-codebuild-client"
+  # We need a bigger timeout here, running npm install takes time
+  build_timeout = "20"
   service_role  = "${aws_iam_role.codebuild_role.arn}"
 
   artifacts {
@@ -94,7 +104,30 @@ resource "aws_codebuild_project" "polyledger_build" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "${data.template_file.buildspec.rendered}"
+    buildspec = "${data.template_file.buildspec_client.rendered}"
+  }
+}
+
+resource "aws_codebuild_project" "polyledger_build_server" {
+  name          = "polyledger-codebuild-server"
+  build_timeout = "10"
+  service_role  = "${aws_iam_role.codebuild_role.arn}"
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    // https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
+    image           = "aws/codebuild/ubuntu-base:14.04"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = true
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "${data.template_file.buildspec_server.rendered}"
   }
 }
 
@@ -105,7 +138,7 @@ resource "aws_codepipeline" "pipeline" {
   role_arn = "${aws_iam_role.codepipeline_role.arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.source.bucket}"
+    location = "${aws_s3_bucket.source_artefacts.bucket}"
     type     = "S3"
   }
 
@@ -123,7 +156,7 @@ resource "aws_codepipeline" "pipeline" {
       configuration {
         Owner      = "polyledger"
         Repo       = "polyledger"
-        Branch     = "master"
+        Branch     = "mpigassou/michel/ecs"
       }
     }
   }
@@ -132,36 +165,50 @@ resource "aws_codepipeline" "pipeline" {
     name = "Build"
 
     action {
-      name             = "Build"
+      name             = "Build-Client"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
       input_artifacts  = ["source"]
-      output_artifacts = ["imagedefinitions"]
+      output_artifacts = ["client-imagedefinitions"]
 
       configuration {
-        ProjectName = "polyledger-codebuild"
+        ProjectName = "polyledger-codebuild-client"
       }
     }
-  }
-
-  stage {
-    name = "Production"
 
     action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "ECS"
-      input_artifacts = ["imagedefinitions"]
-      version         = "1"
+      name             = "Build-Server"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source"]
+      output_artifacts = ["server-imagedefinitions"]
 
       configuration {
-        ClusterName = "${var.ecs_cluster_name}"
-        ServiceName = "${var.ecs_service_name}"
-        FileName    = "imagedefinitions.json"
+        ProjectName = "polyledger-codebuild-server"
       }
     }
   }
+
+  # stage {
+  #   name = "Production Deploy"
+  #
+  #   action {
+  #     name            = "Deploy"
+  #     category        = "Deploy"
+  #     owner           = "AWS"
+  #     provider        = "ECS"
+  #     input_artifacts = ["imagedefinitions"]
+  #     version         = "1"
+  #
+  #     configuration {
+  #       ClusterName = "${var.ecs_cluster_name}"
+  #       ServiceName = "${var.ecs_service_name}"
+  #       FileName    = "imagedefinitions.json"
+  #     }
+  #   }
+  # }
 }
