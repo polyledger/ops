@@ -1,6 +1,6 @@
 [
   {
-    "name": "web",
+    "name": "server",
     "image": "${image}",
     "portMappings": [
       {
