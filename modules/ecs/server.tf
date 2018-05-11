@@ -7,7 +7,7 @@ data "template_file" "server_task" {
   template = "${file("${path.module}/task_definitions/server.json")}"
 
   vars {
-    image                    = "${aws_ecr_repository.polyledger_app.repository_url}"
+    image                    = "${aws_ecr_repository.server.repository_url}"
     secret_key_base          = "${var.secret_key_base}"
     database_url             = "postgresql://${var.database_username}:${var.database_password}@${var.database_endpoint}:5432/${var.database_name}?encoding=utf8&pool=40"
     redis_url                = "redis://${var.redis_endpoint}:6379/1"
@@ -54,4 +54,12 @@ resource "aws_ecs_service" "server" {
     security_groups = ["${var.security_groups_ids}", "${aws_security_group.ecs_service.id}"]
     subnets         = ["${var.subnets_ids}"]
   }
+
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.alb_target_group.arn}"
+    container_name   = "server"
+    container_port   = "80"
+  }
+
+  depends_on = ["aws_alb_target_group.alb_target_group"]
 }

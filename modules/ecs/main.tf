@@ -13,13 +13,16 @@ resource "aws_cloudwatch_log_group" "polyledger" {
 /*====
 ECR repository to store our Docker images
 ======*/
-resource "aws_ecr_repository" "polyledger_app" {
-  name = "${var.repository_name}"
+resource "aws_ecr_repository" "frontend" {
+  name = "${var.frontend_repository_name}"
 }
 
-resource "aws_ecr_repository_policy" "repository-policy" {
-  repository = "${aws_ecr_repository.polyledger_app.name}"
-  policy = <<EOF
+resource "aws_ecr_repository" "server" {
+  name = "${var.server_repository_name}"
+}
+
+data "template_file" "repository-policy" {
+  template = <<EOF
 {
     "Version": "2008-10-17",
     "Statement": [
@@ -49,6 +52,16 @@ resource "aws_ecr_repository_policy" "repository-policy" {
 EOF
 }
 
+resource "aws_ecr_repository_policy" "repository-policy-frontend" {
+  repository = "${aws_ecr_repository.server.name}"
+  policy = "${data.template_file.repository-policy.rendered}"
+}
+
+resource "aws_ecr_repository_policy" "repository-policy-server" {
+  repository = "${aws_ecr_repository.frontend.name}"
+  policy = "${data.template_file.repository-policy.rendered}"
+}
+
 /*====
 ECS cluster
 # Even using Fargate (that doesn’t need any EC2), we need to define a cluster for the application.
@@ -65,10 +78,11 @@ resource "random_id" "target_group_sufix" {
 }
 
 resource "aws_alb_target_group" "alb_target_group" {
-  name     = "${var.environment}-alb-target-group-${random_id.target_group_sufix.hex}"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = "${var.vpc_id}"
+  depends_on  = ["aws_alb.alb_polyledger"]
+  name        = "${var.environment}-alb-target-group-${random_id.target_group_sufix.hex}"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = "${var.vpc_id}"
   target_type = "ip"
 
   lifecycle {
@@ -119,10 +133,13 @@ resource "aws_alb" "alb_polyledger" {
   }
 }
 
-resource "aws_alb_listener" "polyledger" {
+resource "aws_alb_listener" "server" {
   load_balancer_arn = "${aws_alb.alb_polyledger.arn}"
   port              = "80"
   protocol          = "HTTP"
+  # port              = "443"
+  # protocol          = "HTTPS"
+  # ssl_policy        = "ELBSecurityPolicy-2015-05"
   depends_on        = ["aws_alb_target_group.alb_target_group"]
 
   default_action {
