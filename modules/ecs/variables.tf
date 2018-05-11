@@ -46,10 +46,6 @@ variable "database_name" {
   description = "The database that the app will use"
 }
 
-variable "repository_name" {
-  description = "The name of the repisitory"
-}
-
 variable "frontend_repository_name" {
   description = "The name of the ECR repository for the web client"
 }
