@@ -13,8 +13,53 @@ resource "aws_cloudwatch_log_group" "polyledger" {
 /*====
 ECR repository to store our Docker images
 ======*/
-resource "aws_ecr_repository" "polyledger_app" {
-  name = "${var.repository_name}"
+resource "aws_ecr_repository" "frontend" {
+  name = "${var.frontend_repository_name}"
+}
+
+resource "aws_ecr_repository" "server" {
+  name = "${var.server_repository_name}"
+}
+
+data "template_file" "repository-policy" {
+  template = <<EOF
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "new policy",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload",
+                "ecr:DescribeRepositories",
+                "ecr:GetRepositoryPolicy",
+                "ecr:ListImages",
+                "ecr:DeleteRepository",
+                "ecr:BatchDeleteImage",
+                "ecr:SetRepositoryPolicy",
+                "ecr:DeleteRepositoryPolicy"
+            ]
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_ecr_repository_policy" "repository-policy-frontend" {
+  repository = "${aws_ecr_repository.server.name}"
+  policy = "${data.template_file.repository-policy.rendered}"
+}
+
+resource "aws_ecr_repository_policy" "repository-policy-server" {
+  repository = "${aws_ecr_repository.frontend.name}"
+  policy = "${data.template_file.repository-policy.rendered}"
 }
 
 /*====
@@ -33,10 +78,11 @@ resource "random_id" "target_group_sufix" {
 }
 
 resource "aws_alb_target_group" "alb_target_group" {
-  name     = "${var.environment}-alb-target-group-${random_id.target_group_sufix.hex}"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = "${var.vpc_id}"
+  depends_on  = ["aws_alb.alb_polyledger"]
+  name        = "${var.environment}-alb-target-group-${random_id.target_group_sufix.hex}"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = "${var.vpc_id}"
   target_type = "ip"
 
   lifecycle {
@@ -87,10 +133,13 @@ resource "aws_alb" "alb_polyledger" {
   }
 }
 
-resource "aws_alb_listener" "polyledger" {
+resource "aws_alb_listener" "server" {
   load_balancer_arn = "${aws_alb.alb_polyledger.arn}"
   port              = "80"
   protocol          = "HTTP"
+  # port              = "443"
+  # protocol          = "HTTPS"
+  # ssl_policy        = "ELBSecurityPolicy-2015-05"
   depends_on        = ["aws_alb_target_group.alb_target_group"]
 
   default_action {
@@ -197,7 +246,7 @@ resource "aws_iam_role_policy" "ecs_autoscale_role_policy" {
 
 resource "aws_appautoscaling_target" "target" {
   service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id        = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   role_arn           = "${aws_iam_role.ecs_autoscale_role.arn}"
   min_capacity       = 2
@@ -207,7 +256,7 @@ resource "aws_appautoscaling_target" "target" {
 resource "aws_appautoscaling_policy" "up" {
   name                    = "${var.environment}_scale_up"
   service_namespace       = "ecs"
-  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension      = "ecs:service:DesiredCount"
 
 
@@ -228,7 +277,7 @@ resource "aws_appautoscaling_policy" "up" {
 resource "aws_appautoscaling_policy" "down" {
   name                    = "${var.environment}_scale_down"
   service_namespace       = "ecs"
-  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension      = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
@@ -247,7 +296,7 @@ resource "aws_appautoscaling_policy" "down" {
 
 /* metric used for auto scale */
 resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
-  alarm_name          = "${var.environment}_polyledger_web_cpu_utilization_high"
+  alarm_name          = "${var.environment}_polyledger_server_cpu_utilization_high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -258,7 +307,7 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
 
   dimensions {
     ClusterName = "${aws_ecs_cluster.cluster.name}"
-    ServiceName = "${aws_ecs_service.web.name}"
+    ServiceName = "${aws_ecs_service.server.name}"
   }
 
   alarm_actions = ["${aws_appautoscaling_policy.up.arn}"]

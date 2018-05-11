@@ -56,7 +56,6 @@ module "ecs" {
   environment         = "production"
   vpc_id              = "${module.networking.vpc_id}"
   availability_zones  = "${local.production_availability_zones}"
-  repository_name     = "polyledger/production"
   subnets_ids         = ["${module.networking.private_subnets_id}"]
   public_subnet_ids   = ["${module.networking.public_subnets_id}"]
   security_groups_ids = [
@@ -76,6 +75,10 @@ module "ecs" {
   bitbutter_api_secret     = "${var.production_bitbutter_api_secret}"
   bitbutter_partnership_id = "${var.production_bitbutter_partnership_id}"
   bitbutter_partner_id     = "${var.production_bitbutter_partner_id}"
+
+  # Repositories config
+  frontend_repository_name = "polyledger/production/frontend"
+  server_repository_name = "polyledger/production/server"
 }
 
 module "bastion" {
@@ -88,4 +91,16 @@ module "bastion" {
     "${module.rds.db_access_sg_id}"
   ]
   key_name    = "${aws_key_pair.key.id}"
+}
+
+module "code_pipeline" {
+  npm_token                   = "${var.production_npm_token}"
+  source                      = "./modules/code_pipeline"
+  frontend_repository_url     = "${module.ecs.frontend_repository_url}"
+  server_repository_url       = "${module.ecs.server_repository_url}"
+  region                      = "${var.region}"
+  ecs_service_name            = "${module.ecs.service_name}"
+  ecs_cluster_name            = "${module.ecs.cluster_name}"
+  run_task_subnet_id          = "${module.networking.private_subnets_id[0]}"
+  run_task_security_group_ids = ["${module.networking.security_groups_ids}", "${module.ecs.security_group_id}"]
 }

@@ -1,5 +1,9 @@
-output "repository_url" {
-  value = "${aws_ecr_repository.polyledger_app.repository_url}"
+output "frontend_repository_url" {
+  value = "${aws_ecr_repository.frontend.repository_url}"
+}
+
+output "server_repository_url" {
+  value = "${aws_ecr_repository.server.repository_url}"
 }
 
 output "cluster_name" {
@@ -7,7 +11,7 @@ output "cluster_name" {
 }
 
 output "service_name" {
-  value = "${aws_ecs_service.web.name}"
+  value = "${aws_ecs_service.server.name}"
 }
 
 output "alb_dns_name" {

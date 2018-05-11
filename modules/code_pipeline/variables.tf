@@ -1,5 +1,9 @@
-variable "repository_url" {
-  description = "The url of the ECR repository"
+variable "frontend_repository_url" {
+  description = "The url of the ECR repository for the web client"
+}
+
+variable "server_repository_url" {
+  description = "The url of the ECR repository for the server"
 }
 
 variable "region" {
@@ -22,3 +26,5 @@ variable "run_task_security_group_ids" {
   type        = "list"
   description = "The security group Ids attached where the single run task will be executed"
 }
+
+variable "npm_token" {}

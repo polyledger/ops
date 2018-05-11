@@ -50,6 +50,14 @@ variable "repository_name" {
   description = "The name of the repisitory"
 }
 
+variable "frontend_repository_name" {
+  description = "The name of the ECR repository for the web client"
+}
+
+variable "server_repository_name" {
+  description = "The name of the ECR repository for the server"
+}
+
 variable "secret_key_base" {
   description = "The secret key base to use in the app"
 }
