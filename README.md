@@ -23,7 +23,7 @@ in `terraform.tfvars`.
 * RDS/Elasticache instance size (and other vars) in `production.tf`
 * Main container port and ENV variables in `modules/ecs/tasks/web.json`
 * Main container Github source in `modules/code_pipeline/main.tf`
-* CPU/RAM: TODO
+* CPU/RAM: need to be updated in `ecs/server.tf`/`ecs/task_definitions/server.json`, `ecs/frontend.tf`/`ecs/task_definitions/frontend.json`
 
 ## Getting started
 
@@ -41,6 +41,10 @@ in `terraform.tfvars`.
 - [x] Update django sample app to connect from DATABASE_URL and REDIS_URL
 - [x] Add Elastic IP for ssh (rename -> Bastion)
 - [x] Setup domain name
+- [ ] Setup Cloudfront
+- [ ] Setup ALB
+- [ ] Have the frontend use assets from Cloudfront
+- [ ] Make sure admin works
 - [ ] Add monitoring
 - [ ] Add staging (+ prod) parity
 - [ ] Writer better README

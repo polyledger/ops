@@ -193,22 +193,37 @@ resource "aws_codepipeline" "pipeline" {
     }
   }
 
-  # stage {
-  #   name = "Production Deploy"
-  #
-  #   action {
-  #     name            = "Deploy"
-  #     category        = "Deploy"
-  #     owner           = "AWS"
-  #     provider        = "ECS"
-  #     input_artifacts = ["imagedefinitions"]
-  #     version         = "1"
-  #
-  #     configuration {
-  #       ClusterName = "${var.ecs_cluster_name}"
-  #       ServiceName = "${var.ecs_service_name}"
-  #       FileName    = "imagedefinitions.json"
-  #     }
-  #   }
-  # }
+  stage {
+    name = "Deploy"
+
+    action {
+      name            = "Deploy-Client"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      input_artifacts = ["client-imagedefinitions"]
+      version         = "1"
+
+      configuration {
+        ClusterName = "${var.ecs_cluster_name}"
+        ServiceName = "${var.ecs_service_name}"
+        FileName    = "client-imagedefinitions.json"
+      }
+    }
+
+    action {
+      name            = "Deploy-Server"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      input_artifacts = ["server-imagedefinitions"]
+      version         = "1"
+
+      configuration {
+        ClusterName = "${var.ecs_cluster_name}"
+        ServiceName = "${var.ecs_service_name}"
+        FileName    = "server-imagedefinitions.json"
+      }
+    }
+  }
 }
