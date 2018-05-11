@@ -28,29 +28,6 @@ module "networking" {
   key_name             = "production_key"
 }
 
-module "rds" {
-  source            = "./modules/rds"
-  environment       = "production"
-  allocated_storage = "20"
-  database_name     = "${var.production_database_name}"
-  database_username = "${var.production_database_username}"
-  database_password = "${var.production_database_password}"
-  subnet_ids        = ["${module.networking.private_subnets_id}"]
-  vpc_id            = "${module.networking.vpc_id}"
-  instance_class    = "db.t2.micro"
-}
-
-module "elasticache" {
-  source            = "./modules/elasticache"
-  environment       = "production"
-  # https://aws.amazon.com/elasticache/pricing/
-  instance_class    = "cache.t2.micro"
-  node_groups       = "${var.production_ec_node_groups}"
-  cluster_id        = "production-redis"
-  subnet_ids        = ["${module.networking.private_subnets_id}"]
-  vpc_id            = "${module.networking.vpc_id}"
-}
-
 module "ecs" {
   source              = "./modules/ecs"
   environment         = "production"
@@ -60,15 +37,8 @@ module "ecs" {
   subnets_ids         = ["${module.networking.private_subnets_id}"]
   public_subnet_ids   = ["${module.networking.public_subnets_id}"]
   security_groups_ids = [
-    "${module.networking.security_groups_ids}",
-    "${module.rds.db_access_sg_id}",
-    "${module.elasticache.elasticache_access_sg_id}"
+    "${module.networking.security_groups_ids}"
   ]
-  database_endpoint        = "${module.rds.rds_address}"
-  database_name            = "${var.production_database_name}"
-  database_username        = "${var.production_database_username}"
-  database_password        = "${var.production_database_password}"
-  redis_endpoint           = "${module.elasticache.elasticache_endpoint}"
   secret_key_base          = "${var.production_secret_key_base}"
   email_host_password      = "${var.production_email_host_password}"
   npm_token                = "${var.production_npm_token}"
@@ -78,14 +48,13 @@ module "ecs" {
   bitbutter_partner_id     = "${var.production_bitbutter_partner_id}"
 }
 
-module "bastion" {
-  source      = "./modules/bastion"
-  environment = "production"
-  vpc_id      = "${module.networking.vpc_id}"
-  subnet_id   = "${module.networking.public_subnets_id[0]}"
-  vpc_security_group_ids = [
-    "${module.elasticache.elasticache_access_sg_id}",
-    "${module.rds.db_access_sg_id}"
-  ]
-  key_name    = "${aws_key_pair.key.id}"
+module "code_pipeline" {
+  npm_token                   = "${var.production_npm_token}"
+  source                      = "./modules/code_pipeline"
+  repository_url              = "${module.ecs.repository_url}"
+  region                      = "${var.region}"
+  ecs_service_name            = "${module.ecs.service_name}"
+  ecs_cluster_name            = "${module.ecs.cluster_name}"
+  run_task_subnet_id          = "${module.networking.private_subnets_id[0]}"
+  run_task_security_group_ids = ["${module.networking.security_groups_ids}", "${module.ecs.security_group_id}"]
 }

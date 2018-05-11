@@ -9,12 +9,19 @@ phases:
       - $(aws ecr get-login --region ${region} --no-include-email)
       - REPOSITORY_URI=${repository_url}
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - ASSETS_BUCKET_NAME=${assets_bucket_name}
+      - NPM_TOKEN=${npm_token}
+      - docker pull $REPOSITORY_URI:latest || true
       - echo Entered the pre_build phase...
   build:
     commands:
       - echo Build started on `date`
+      - echo Running npm run build
+      - cd web_client
+      # We'll need this when we build the assets in the last steps
+      - npm install && npm run build
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:latest .
+      - docker build --cache-from $REPOSITORY_URI:latest -t $REPOSITORY_URI:latest . --build-arg NPM_TOKEN=$NPM_TOKEN
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
@@ -22,9 +29,17 @@ phases:
       - echo Pushing the Docker images...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Writing image definitions file...
-      - printf '[{"name":"web","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo Writing image definitions file to $CODEBUILD_SRC_DIR...
+      - printf '[{"name":"frontend","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > $CODEBUILD_SRC_DIR/client-imagedefinitions.json
+      # Sends assets to S3
+      - aws s3 sync --delete --exclude static/* build/ "s3://$ASSETS_BUCKET_NAME"
+      - aws s3 sync --delete --cache-control "max-age=31536000" build/static "s3://$ASSETS_BUCKET_NAME/static"
       # For DB migration?
       #- aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition production_db_migrate --network-configuration "awsvpcConfiguration={subnets=[${subnet_id}],securityGroups=[${security_group_ids}]}"
 artifacts:
-  files: imagedefinitions.json
+  discard-paths: yes
+  files:
+    - client-imagedefinitions.json
+cache:
+  paths:
+    - '/root/.cache/pip/**/*'

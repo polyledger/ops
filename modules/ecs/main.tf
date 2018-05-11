@@ -17,6 +17,38 @@ resource "aws_ecr_repository" "polyledger_app" {
   name = "${var.repository_name}"
 }
 
+resource "aws_ecr_repository_policy" "repository-policy" {
+  repository = "${aws_ecr_repository.polyledger_app.name}"
+  policy = <<EOF
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "new policy",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload",
+                "ecr:DescribeRepositories",
+                "ecr:GetRepositoryPolicy",
+                "ecr:ListImages",
+                "ecr:DeleteRepository",
+                "ecr:BatchDeleteImage",
+                "ecr:SetRepositoryPolicy",
+                "ecr:DeleteRepositoryPolicy"
+            ]
+        }
+    ]
+}
+EOF
+}
+
 /*====
 ECS cluster
 # Even using Fargate (that doesn’t need any EC2), we need to define a cluster for the application.
@@ -33,10 +65,11 @@ resource "random_id" "target_group_sufix" {
 }
 
 resource "aws_alb_target_group" "alb_target_group" {
-  name     = "${var.environment}-alb-target-group-${random_id.target_group_sufix.hex}"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = "${var.vpc_id}"
+  depends_on  = ["aws_alb.alb_polyledger"]
+  name        = "${var.environment}-alb-target-group-${random_id.target_group_sufix.hex}"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = "${var.vpc_id}"
   target_type = "ip"
 
   lifecycle {
@@ -197,7 +230,7 @@ resource "aws_iam_role_policy" "ecs_autoscale_role_policy" {
 
 resource "aws_appautoscaling_target" "target" {
   service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id        = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   role_arn           = "${aws_iam_role.ecs_autoscale_role.arn}"
   min_capacity       = 2
@@ -207,7 +240,7 @@ resource "aws_appautoscaling_target" "target" {
 resource "aws_appautoscaling_policy" "up" {
   name                    = "${var.environment}_scale_up"
   service_namespace       = "ecs"
-  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension      = "ecs:service:DesiredCount"
 
 
@@ -228,7 +261,7 @@ resource "aws_appautoscaling_policy" "up" {
 resource "aws_appautoscaling_policy" "down" {
   name                    = "${var.environment}_scale_down"
   service_namespace       = "ecs"
-  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.web.name}"
+  resource_id             = "service/${aws_ecs_cluster.cluster.name}/${aws_ecs_service.server.name}"
   scalable_dimension      = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
@@ -247,7 +280,7 @@ resource "aws_appautoscaling_policy" "down" {
 
 /* metric used for auto scale */
 resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
-  alarm_name          = "${var.environment}_polyledger_web_cpu_utilization_high"
+  alarm_name          = "${var.environment}_polyledger_server_cpu_utilization_high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -258,7 +291,7 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
 
   dimensions {
     ClusterName = "${aws_ecs_cluster.cluster.name}"
-    ServiceName = "${aws_ecs_service.web.name}"
+    ServiceName = "${aws_ecs_service.server.name}"
   }
 
   alarm_actions = ["${aws_appautoscaling_policy.up.arn}"]
