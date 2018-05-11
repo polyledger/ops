@@ -66,7 +66,7 @@ data "template_file" "buildspec_client" {
     assets_bucket_name = "${aws_s3_bucket.client_assets.bucket}"
     # We need it to run `npm build` in the builspec.yml
     npm_token          = "${var.npm_token}"
-    repository_url     = "${var.repository_url}"
+    repository_url     = "${var.frontend_repository_url}"
     region             = "${var.region}"
     # Not needed now but needed to run the migrate task
     cluster_name       = "${var.ecs_cluster_name}"
@@ -79,7 +79,7 @@ data "template_file" "buildspec_server" {
   template = "${file("${path.module}/buildspec_server.yml")}"
 
   vars {
-    repository_url     = "${var.repository_url}"
+    repository_url     = "${var.server_repository_url}"
     region             = "${var.region}"
   }
 }
@@ -193,22 +193,37 @@ resource "aws_codepipeline" "pipeline" {
     }
   }
 
-  # stage {
-  #   name = "Production Deploy"
-  #
-  #   action {
-  #     name            = "Deploy"
-  #     category        = "Deploy"
-  #     owner           = "AWS"
-  #     provider        = "ECS"
-  #     input_artifacts = ["imagedefinitions"]
-  #     version         = "1"
-  #
-  #     configuration {
-  #       ClusterName = "${var.ecs_cluster_name}"
-  #       ServiceName = "${var.ecs_service_name}"
-  #       FileName    = "imagedefinitions.json"
-  #     }
-  #   }
-  # }
+  stage {
+    name = "Deploy"
+
+    # action {
+    #   name            = "Deploy-Client"
+    #   category        = "Deploy"
+    #   owner           = "AWS"
+    #   provider        = "ECS"
+    #   input_artifacts = ["client-imagedefinitions"]
+    #   version         = "1"
+    #
+    #   configuration {
+    #     ClusterName = "${var.ecs_cluster_name}"
+    #     ServiceName = "${var.ecs_service_name}"
+    #     FileName    = "client-imagedefinitions.json"
+    #   }
+    # }
+
+    action {
+      name            = "Deploy-Server"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      input_artifacts = ["server-imagedefinitions"]
+      version         = "1"
+
+      configuration {
+        ClusterName = "${var.ecs_cluster_name}"
+        ServiceName = "${var.ecs_service_name}"
+        FileName    = "server-imagedefinitions.json"
+      }
+    }
+  }
 }

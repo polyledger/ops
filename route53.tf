@@ -7,9 +7,21 @@ resource "aws_route53_zone" "primary_route" {
   delegation_set_id = "${aws_route53_delegation_set.main.id}"
 }
 
-resource "aws_route53_record" "www-prod" {
+resource "aws_route53_record" "portfolio-prod" {
   zone_id = "${aws_route53_zone.primary_route.id}"
-  name    = "www.${var.domain}"
+  name    = "portfolio.${var.domain}"
+  type    = "A"
+
+  alias {
+    name                    = "${module.code_pipeline.frontend_assets_aws_s3_bucket_name}"
+    zone_id                 = "${module.code_pipeline.frontend_assets_aws_s3_bucket_zone_id}"
+    evaluate_target_health  = true
+  }
+}
+
+resource "aws_route53_record" "api-prod" {
+  zone_id = "${aws_route53_zone.primary_route.id}"
+  name    = "api.${var.domain}"
   type    = "A"
 
   alias {

@@ -7,7 +7,7 @@ data "template_file" "server_task" {
   template = "${file("${path.module}/task_definitions/server.json")}"
 
   vars {
-    image                    = "${aws_ecr_repository.polyledger_app.repository_url}"
+    image                    = "${aws_ecr_repository.server.repository_url}"
     secret_key_base          = "${var.secret_key_base}"
     log_group                = "${aws_cloudwatch_log_group.polyledger.name}"
     email_host_password      = "${var.email_host_password}"
@@ -52,4 +52,12 @@ resource "aws_ecs_service" "server" {
     security_groups = ["${var.security_groups_ids}", "${aws_security_group.ecs_service.id}"]
     subnets         = ["${var.subnets_ids}"]
   }
+
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.alb_target_group.arn}"
+    container_name   = "server"
+    container_port   = "80"
+  }
+
+  depends_on = ["aws_alb_target_group.alb_target_group"]
 }

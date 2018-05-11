@@ -1,5 +1,9 @@
-variable "repository_url" {
-  description = "The url of the ECR repository"
+variable "frontend_repository_url" {
+  description = "The url of the ECR repository for the web client"
+}
+
+variable "server_repository_url" {
+  description = "The url of the ECR repository for the server"
 }
 
 variable "region" {
