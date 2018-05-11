@@ -13,8 +13,8 @@ resource "aws_route53_record" "portfolio-prod" {
   type    = "A"
 
   alias {
-    name                    = "${module.code_pipeline.frontend_assets_aws_s3_bucket_name}"
-    zone_id                 = "${module.code_pipeline.frontend_assets_aws_s3_bucket_zone_id}"
+    name                    = "${module.cloudfront.cloudfront_domain_name}"
+    zone_id                 = "${module.cloudfront.cloudfront_zone_id}"
     evaluate_target_health  = true
   }
 }

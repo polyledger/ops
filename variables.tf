@@ -1,6 +1,15 @@
-# Defined when calling terraform apply -var 'access_key=foo' -var 'secret_key=bar'
-variable "access_key" {}
-variable "secret_key" {}
+/*
+ * Prompted for these values when calling `terraform apply`
+ * You can also pass to the command like:
+ * `terraform apply -var 'access_key=foo' -var 'secret_key=bar'`
+ */
+variable "access_key" {
+  description = "Your AWS access key"
+}
+
+variable "secret_key" {
+  description = "Your AWS secret key"
+}
 
 variable "region" {
   description = "Region that the instances will be created"
