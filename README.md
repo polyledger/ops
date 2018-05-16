@@ -42,13 +42,19 @@ in `terraform.tfvars`.
 - [x] Add Elastic IP for ssh (rename -> Bastion)
 - [x] Setup domain name
 - [ ] Setup Cloudfront
-- [ ] Setup ALB
-- [ ] SSL
 - [ ] Have the frontend use assets from Cloudfront
-- [ ] Make sure admin works
-- [ ] Add monitoring
-- [ ] Add staging (+ prod) parity
+- [ ] Rename production to staging
+- [x] Setup ALB
+- [ ] SSL
+- [x] Make sure admin works
+- [ ] Add prod parity
 - [ ] Writer better README
+
+## Medium term TODO
+
+- [ ] Replace supervisor by 3 distinct ECS tasks (celery, celery beat, server)
+- [ ] Add health check for backend from ECS
+- [ ] Add monitoring
 - [ ] Settings for instance types/container sizes
 
 ## Long term TODO

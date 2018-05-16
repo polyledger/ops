@@ -10,24 +10,30 @@ resource "aws_elasticache_subnet_group" "elasticache_subnet_group" {
 
 resource "aws_elasticache_replication_group" "elasticache" {
   replication_group_id          = "${var.cluster_id}"
-  replication_group_description = "Redis cluster for Hashicorp ElastiCache example"
+  replication_group_description = "Redis ElastiCache"
 
-  node_type            = "${var.instance_class}"
-  port                 = 6379
-  parameter_group_name = "default.redis3.2.cluster.on"
-
-  snapshot_retention_limit = 5
-  snapshot_window          = "00:00-05:00"
+  node_type             = "${var.instance_class}"
+  number_cache_clusters = 2
+  port                  = 6379
+  parameter_group_name  = "default.redis3.2"
 
   security_group_ids = ["${aws_security_group.elasticache_sg.id}"]
   subnet_group_name = "${aws_elasticache_subnet_group.elasticache_subnet_group.name}"
 
-  automatic_failover_enabled = true
-
-  cluster_mode {
-    replicas_per_node_group = 1
-    num_node_groups         = "${var.node_groups}"
+  lifecycle {
+    ignore_changes = ["number_cache_clusters"]
   }
+
+  # Not working with a small instance:
+  # InvalidParameterCombination: Automatic failover is not supported for T1 and T2 cache node types
+  # automatic_failover_enabled = true
+}
+
+resource "aws_elasticache_cluster" "replica" {
+  count = 1
+
+  cluster_id           = "${var.cluster_id}-0"
+  replication_group_id = "${aws_elasticache_replication_group.elasticache.id}"
 }
 
 resource "aws_security_group" "elasticache_access_sg" {

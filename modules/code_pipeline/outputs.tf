@@ -1,5 +1,5 @@
 output "frontend_assets_aws_s3_bucket_name" {
-  value = "${aws_s3_bucket.client_assets.website_domain}"
+  value = "${aws_s3_bucket.client_assets.bucket_domain_name}"
 }
 
 output "frontend_assets_aws_s3_bucket_zone_id" {
