@@ -104,3 +104,8 @@ module "code_pipeline" {
   run_task_subnet_id          = "${module.networking.private_subnets_id[0]}"
   run_task_security_group_ids = ["${module.networking.security_groups_ids}", "${module.ecs.security_group_id}"]
 }
+
+module "cloudfront" {
+  source = "./modules/cloudfront"
+  frontend_assets_aws_s3_bucket_name = "${module.code_pipeline.frontend_assets_aws_s3_bucket_name}"
+}
