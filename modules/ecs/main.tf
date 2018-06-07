@@ -77,6 +77,7 @@ resource "random_id" "target_group_sufix" {
   byte_length = 2
 }
 
+/* This is the core of the LB settings */
 resource "aws_alb_target_group" "alb_target_group" {
   depends_on  = ["aws_alb.alb_polyledger"]
   name        = "${var.environment}-alb-target-group-${random_id.target_group_sufix.hex}"
@@ -84,6 +85,11 @@ resource "aws_alb_target_group" "alb_target_group" {
   protocol    = "HTTP"
   vpc_id      = "${var.vpc_id}"
   target_type = "ip"
+
+  health_check {
+    path = "/api/"
+    matcher = "200,401"
+  }
 
   lifecycle {
     create_before_destroy = true

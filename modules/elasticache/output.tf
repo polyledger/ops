@@ -3,5 +3,5 @@ output "elasticache_access_sg_id" {
 }
 
 output "elasticache_endpoint" {
-  value = "${aws_elasticache_replication_group.elasticache.configuration_endpoint_address}"
+  value = "${aws_elasticache_replication_group.elasticache.primary_endpoint_address}"
 }

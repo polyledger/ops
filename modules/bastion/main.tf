@@ -84,7 +84,7 @@ resource "aws_eip" "bastion_eip" {
 
   lifecycle {
     # We don't want it to be removed from the account so it does not change
-    prevent_destroy = true
+    # prevent_destroy = true
   }
 }
 

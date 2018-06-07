@@ -19,7 +19,7 @@ resource "aws_cloudfront_distribution" "polyledger_s3_distribution" {
 
   logging_config {
     include_cookies = false
-    bucket          = "polyledger-logs.s3.amazonaws.com"
+    bucket          = "${aws_s3_bucket.polyledger_logs.bucket_domain_name}"
   }
 
   aliases = ["portfolio.polyledger.com"]
