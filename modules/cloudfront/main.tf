@@ -95,7 +95,7 @@ resource "aws_cloudfront_distribution" "polyledger_s3_distribution" {
   }
 
   tags {
-    Environment = "production"
+    Environment = "staging"
   }
 
   viewer_certificate {

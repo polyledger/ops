@@ -41,13 +41,14 @@ in `terraform.tfvars`.
 - [x] Update django sample app to connect from DATABASE_URL and REDIS_URL
 - [x] Add Elastic IP for ssh (rename -> Bastion)
 - [x] Setup domain name
-- [ ] Setup Cloudfront
-- [ ] Have the frontend use assets from Cloudfront
-- [ ] Rename production to staging
+- [x] Setup Cloudfront
+- [x] Have the frontend use assets from Cloudfront
+- [x] Rename production to staging
 - [x] Setup ALB
 - [ ] SSL
 - [x] Make sure admin works
 - [ ] Add prod parity
+- [ ] Change SSH keys to IAM so multiple pub keys can be used to access bastion
 - [ ] Writer better README
 
 ## Medium term TODO
@@ -60,7 +61,6 @@ in `terraform.tfvars`.
 ## Long term TODO
 
 - [ ] Add CI
-- [ ] IAM users
 - [ ] Use Aurora Postgres
 - [ ] Add ECS service discovery (instead of Consul) https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html
 - [ ] DB backups? (should be included with Aurora)

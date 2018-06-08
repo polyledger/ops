@@ -24,7 +24,3 @@ variable "availability_zones" {
   type        = "list"
   description = "The az that the resources will be launched"
 }
-
-variable "key_name" {
-  description = "The public key for the bastion host"
-}

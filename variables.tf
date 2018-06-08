@@ -19,33 +19,33 @@ variable "region" {
 environment specific variables
 ======*/
 
-variable "production_database_name" {
-  description = "The database name for Production"
+variable "staging_database_name" {
+  description = "The database name for staging"
 }
 
-variable "production_database_username" {
-  description = "The username for the Production database"
+variable "staging_database_username" {
+  description = "The username for the staging database"
 }
 
-variable "production_database_password" {
-  description = "The user password for the Production database"
+variable "staging_database_password" {
+  description = "The user password for the staging database"
 }
 
-variable "production_ec_node_groups" {
+variable "staging_ec_node_groups" {
   description = "Number of Redis replicas"
 }
 
-variable "production_secret_key_base" {
-  description = "The app secret key for production"
+variable "staging_secret_key_base" {
+  description = "The app secret key for staging"
 }
 
 variable "domain" {
   default = "The domain of your application"
 }
 
-variable "production_email_host_password" {}
-variable "production_npm_token" {}
-variable "production_bitbutter_api_key" {}
-variable "production_bitbutter_api_secret" {}
-variable "production_bitbutter_partnership_id" {}
-variable "production_bitbutter_partner_id" {}
+variable "staging_email_host_password" {}
+variable "staging_npm_token" {}
+variable "staging_bitbutter_api_key" {}
+variable "staging_bitbutter_api_secret" {}
+variable "staging_bitbutter_partnership_id" {}
+variable "staging_bitbutter_partner_id" {}

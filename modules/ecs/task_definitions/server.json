@@ -37,7 +37,7 @@
       },
       {
         "name": "DJANGO_SETTINGS_MODULE",
-        "value": "polyledger.settings.production"
+        "value": "polyledger.settings.staging"
       },
       {
         "name": "EMAIL_HOST_PASSWORD",

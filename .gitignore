@@ -1,2 +1,5 @@
 **/.terraform
-start
+# I use these with a file like `start_polyledger` that contains
+# GITHUB_TOKEN=586bdac... terraform apply -var 'access_key=AKI...' -var 'secret_key=A9RA...'
+# So I can simply copy and paste it.
+start_*

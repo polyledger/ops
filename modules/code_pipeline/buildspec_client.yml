@@ -34,7 +34,7 @@ phases:
       - aws s3 sync --delete --exclude static/* build/ "s3://$ASSETS_BUCKET_NAME"
       - aws s3 sync --delete --cache-control "max-age=31536000" build/static "s3://$ASSETS_BUCKET_NAME/static"
       # For DB migration?
-      #- aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition production_db_migrate --network-configuration "awsvpcConfiguration={subnets=[${subnet_id}],securityGroups=[${security_group_ids}]}"
+      #- aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition staging_db_migrate --network-configuration "awsvpcConfiguration={subnets=[${subnet_id}],securityGroups=[${security_group_ids}]}"
 cache:
   paths:
     - '/root/.cache/pip/**/*'
